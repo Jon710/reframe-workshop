@@ -11,22 +11,24 @@
 (defn field-empty []
   [:div.field])
 
-(defn field-peg []
+(defn field-peg [{:keys [selected? x y]}]
   [:div.field
-   [:div.peg]])
+   [:div.peg {:class (when selected? "peg--selected")
+              :on-click #(rf/dispatch [::events/select-field x y])}]])
 
-(defn field-view [type]
+(defn field-view [{:keys [type] :as field}]
   (case type
     :blocked [field-blocked]
     :empty [field-empty]
-    :peg [field-peg]))
+    :peg [field-peg field]))
 
-(defn board-view [board]
-  (let [[width height] (board/dimensions board)]
-    (into [:div.board]
-          (for [row board
-                field row]
-            [field-view field]))))
+(defn board-view []
+  (let [[width height] @(rf/subscribe [::subs/board-dimensions])]
+    (into
+     [:div.board]
+     (for [y (range height)
+           x (range width)]
+       [field-view @(rf/subscribe [::subs/field x y])]))))
 
 (defn main-panel []
   [:div

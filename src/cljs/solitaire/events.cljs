@@ -9,3 +9,11 @@
  ::initialize-db
  (fn [_ _]
    db/default-db))
+
+(rf/reg-event-db
+ ::select-field
+ (fn [db [_ x y]]
+   (assoc db :selected-field
+          (if (= (:selected-field db) [x y])
+            nil
+            [x y]))))
